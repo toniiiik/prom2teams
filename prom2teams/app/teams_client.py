@@ -1,6 +1,7 @@
 import json
 import logging
 import requests
+import os
 from tenacity import retry, wait_fixed, after_log
 
 from .exceptions import MicrosoftTeamsRequestException
@@ -18,6 +19,11 @@ class TeamsClient:
     def __init__(self, config=None):
         self.session = requests.Session()
         self.session.headers.update({'Content-Type': 'application/json'})
+        insecure = os.environ.get('PYTHONHTTPSVERIFY', '1')
+        if insecure == '0': 
+            self.session.verify = False
+
+        log.debug("Teams client insecure flag 'PYTHONHTTPSVERIFY=" + insecure + '", session verify set to: ' + str(self.session.verify))
 
         if config is None:
             config = {}
